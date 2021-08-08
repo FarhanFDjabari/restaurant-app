@@ -12,7 +12,7 @@ class SchedulingService {
     _isScheduled = value;
     if (_isScheduled) {
       print('Notification scheduled on ${DateTimeService.format().toString()}');
-      return await AndroidAlarmManager.periodic(
+      await AndroidAlarmManager.periodic(
         Duration(hours: 24),
         1,
         BackgroundService.callback,
@@ -20,9 +20,11 @@ class SchedulingService {
         exact: true,
         wakeup: true,
       );
+      return true;
     } else {
       print('Schedule Notification Canceled');
-      return await AndroidAlarmManager.cancel(1);
+      await AndroidAlarmManager.cancel(1);
+      return false;
     }
   }
 
