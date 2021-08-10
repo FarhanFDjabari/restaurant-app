@@ -2,16 +2,13 @@ import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:restaurant_app/model/restaurant/restaurant_detail.dart';
 import 'package:restaurant_app/model/restaurant/restaurants_result.dart';
-import 'package:restaurant_app/model/restaurant/search_response.dart';
 import 'package:restaurant_app/service/restaurant_service.dart';
-import 'package:restaurant_app/service/search_service.dart';
 
 part 'restaurant_state.dart';
 
 class RestaurantCubit extends Cubit<RestaurantState> {
   RestaurantCubit() : super(RestaurantInitial());
   RestaurantService _restaurantService = RestaurantService();
-  SearchService _searchService = SearchService();
 
   void getAllRestaurants() async {
     emit(RestaurantLoading());
@@ -36,7 +33,7 @@ class RestaurantCubit extends Cubit<RestaurantState> {
   void searchRestaurant(String title) async {
     emit(RestaurantLoading());
     try {
-      final restaurantsList = await _searchService.searchRestaurant(title);
+      final restaurantsList = await _restaurantService.searchRestaurant(title);
       emit(RestaurantFounded(restaurantsList.foundedRestaurants));
     } catch (error) {
       emit(RestaurantLoadError(error.toString()));

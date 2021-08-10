@@ -13,7 +13,7 @@ class ReviewCubit extends Cubit<ReviewState> {
   void addNewReview(ReviewRequest reviewRequest) async {
     emit(ReviewLoading());
     try {
-      final reviewResponse = await _reviewService.addNewReview(reviewRequest);
+      await _reviewService.addNewReview(reviewRequest);
       emit(ReviewUploadSuccess());
     } catch (error) {
       emit(ReviewUploadError(error.toString()));

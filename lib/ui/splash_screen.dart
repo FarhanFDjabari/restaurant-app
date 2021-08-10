@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:restaurant_app/util/navigation.dart';
 
 class SplashScreen extends StatefulWidget {
   SplashScreen({Key? key}) : super(key: key);
@@ -24,8 +25,7 @@ class _SplashScreenState extends State<SplashScreen>
     _animationController.forward().then(
           (value) => Timer(
             Duration(seconds: 4),
-            () => Navigator.pushNamedAndRemoveUntil(
-                context, '/', (route) => false),
+            () => Navigation.replacementAllIntent('/', null),
           ),
         );
   }

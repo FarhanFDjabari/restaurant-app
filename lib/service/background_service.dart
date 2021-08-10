@@ -1,4 +1,5 @@
 import 'dart:isolate';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:restaurant_app/service/notification_service.dart';
@@ -25,12 +26,16 @@ class BackgroundService {
   }
 
   static Future<void> callback() async {
-    print("show notification");
+    print("showing notification");
     final NotificationService _notificationService = NotificationService();
     final RestaurantService _restaurantService = RestaurantService();
 
-    final _restaurantData =
-        await _restaurantService.getRestaurantById("s1knt6za9kkfw1e867");
+    final List<dynamic> _restaurantList =
+        (await _restaurantService.getRestaurantList()).restaurants;
+    String? randomRestaurantId = _restaurantList[Random().nextInt(20)].id;
+
+    final _restaurantData = await _restaurantService
+        .getRestaurantById(randomRestaurantId ?? "s1knt6za9kkfw1e867");
 
     await _notificationService.showNotification(
       flp,

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:restaurant_app/cubit/database/database_cubit.dart';
 import 'package:restaurant_app/cubit/restaurant/restaurant_cubit.dart';
 import 'package:restaurant_app/cubit/review/review_cubit.dart';
 import 'package:restaurant_app/model/restaurant/restaurant_detail.dart';
@@ -24,6 +25,8 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
   late AnimationController _animationController;
   RestaurantCubit _restaurantCubit = RestaurantCubit();
   late String restaurantId;
+  bool isFavorite = false;
+  late RestaurantDetail restaurantDetailData;
 
   @override
   void initState() {
@@ -45,307 +48,412 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<RestaurantCubit>(
-      create: (context) => _restaurantCubit,
-      child: Scaffold(
-        body: RefreshWidget(
-          onRefresh: () async {
-            _restaurantCubit.getRestaurantById(restaurantId);
-          },
-          child: SingleChildScrollView(
-            child: FadeTransition(
-              opacity: _animationController,
-              child: Column(
-                children: [
-                  BlocConsumer<RestaurantCubit, RestaurantState>(
-                    listener: (context, state) {},
-                    builder: (context, state) {
-                      return RestaurantAnimationContainer(
-                        animationController: _animationController,
-                        width: double.infinity,
-                        begin: Offset(0, -1),
-                        end: Offset.zero,
-                        height: 250,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.vertical(
-                            bottom: Radius.circular(15),
-                          ),
-                          color: Colors.amber,
-                        ),
-                        child: state is RestaurantDetailLoadSuccess
-                            ? Hero(
-                                tag: state.restaurantDetail.pictureId,
-                                child: ClipRRect(
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<RestaurantCubit>(
+          create: (context) => _restaurantCubit,
+        ),
+        BlocProvider<DatabaseCubit>(
+          create: (context) =>
+              DatabaseCubit()..isRestaurantFavorite(restaurantId),
+        ),
+      ],
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<DatabaseCubit, DatabaseState>(
+              listener: (context, state) {
+            if (state is DatabaseDataInsertSuccess) {
+              Get.showSnackbar(GetBar(
+                message: 'Added to favorite',
+                margin: EdgeInsets.all(10),
+                duration: Duration(seconds: 1),
+                borderRadius: 15,
+              ));
+            } else if (state is DatabaseDataDeleteSuccess) {
+              Get.showSnackbar(GetBar(
+                message: 'Deleted from favorite',
+                margin: EdgeInsets.all(10),
+                duration: Duration(seconds: 1),
+                borderRadius: 15,
+              ));
+            } else if (state is DatabaseDataError) {
+              Get.showSnackbar(GetBar(
+                message: state.errorMessage,
+                margin: EdgeInsets.all(10),
+                duration: Duration(seconds: 3),
+                borderRadius: 15,
+              ));
+            } else if (state is DatabaseDataStatus) {
+              isFavorite = state.status;
+            }
+          }),
+          BlocListener<RestaurantCubit, RestaurantState>(
+            listener: (context, state) {
+              if (state is RestaurantLoadError) {
+                Get.showSnackbar(GetBar(
+                  message: state.errorMessage,
+                  margin: EdgeInsets.all(10),
+                  duration: Duration(seconds: 4),
+                  borderRadius: 15,
+                ));
+              }
+            },
+          ),
+        ],
+        child: Scaffold(
+          body: RefreshWidget(
+            onRefresh: () async {
+              _restaurantCubit.getRestaurantById(restaurantId);
+            },
+            child: SingleChildScrollView(
+              child: FadeTransition(
+                opacity: _animationController,
+                child: Column(
+                  children: [
+                    Container(
+                      height: 280,
+                      child: Stack(
+                        children: [
+                          BlocConsumer<RestaurantCubit, RestaurantState>(
+                            listener: (context, state) {},
+                            builder: (context, state) {
+                              return RestaurantAnimationContainer(
+                                animationController: _animationController,
+                                width: double.infinity,
+                                begin: Offset(0, -1),
+                                end: Offset.zero,
+                                height: 250,
+                                decoration: BoxDecoration(
                                   borderRadius: BorderRadius.vertical(
                                     bottom: Radius.circular(15),
                                   ),
-                                  child: ColorFiltered(
-                                    colorFilter: ColorFilter.mode(
-                                      Colors.black.withOpacity(0.3),
-                                      BlendMode.multiply,
-                                    ),
-                                    child: FadeInImage.assetNetwork(
-                                      placeholder:
-                                          'assets/images/food-plate.png',
-                                      image:
-                                          'https://restaurant-api.dicoding.dev/images/medium/${state.restaurantDetail.pictureId}',
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : Center(
-                                child: CircularProgressIndicator(
-                                  color: Colors.black,
-                                ),
-                              ),
-                      );
-                    },
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: BlocConsumer<RestaurantCubit, RestaurantState>(
-                      listener: (context, state) {
-                        if (state is RestaurantLoadError) {
-                          Get.showSnackbar(GetBar(
-                            message: state.errorMessage,
-                            margin: EdgeInsets.all(10),
-                            duration: Duration(seconds: 4),
-                            borderRadius: 15,
-                          ));
-                        }
-                      },
-                      builder: (context, state) {
-                        if (state is RestaurantDetailLoadSuccess)
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              RestaurantAnimationContainer(
-                                animationController: _animationController,
-                                begin: Offset(-1, 0),
-                                end: Offset.zero,
-                                margin: const EdgeInsets.only(top: 20),
-                                child: Text(
-                                  state.restaurantDetail.name,
-                                  style: Theme.of(context).textTheme.headline5,
-                                ),
-                              ),
-                              RestaurantAnimationContainer(
-                                animationController: _animationController,
-                                begin: Offset(-1, 0),
-                                end: Offset.zero,
-                                margin: const EdgeInsets.only(top: 8),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.location_on, size: 20),
-                                    SizedBox(width: 5),
-                                    Text(
-                                      state.restaurantDetail.city,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .subtitle1!
-                                          .apply(color: Colors.black),
-                                    ),
-                                    SizedBox(width: 5),
-                                    Text(
-                                      '|',
-                                      style:
-                                          Theme.of(context).textTheme.subtitle1,
-                                    ),
-                                    SizedBox(width: 5),
-                                    Icon(Icons.star, size: 20),
-                                    SizedBox(width: 5),
-                                    Text(
-                                      '${state.restaurantDetail.rating}',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .subtitle1!
-                                          .apply(color: Colors.black),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              RestaurantAnimationContainer(
-                                animationController: _animationController,
-                                begin: Offset(-1, 0),
-                                end: Offset.zero,
-                                margin: const EdgeInsets.only(top: 20),
-                                width: double.infinity,
-                                height: 25,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
                                   color: Colors.amber,
                                 ),
-                                child: Center(
-                                  child: Text(
-                                    'Deskripsi',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .button!
-                                        .apply(color: Colors.black),
-                                  ),
-                                ),
-                              ),
-                              RestaurantAnimationContainer(
+                                child: state is RestaurantDetailLoadSuccess
+                                    ? Hero(
+                                        tag: state.restaurantDetail.pictureId,
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.vertical(
+                                            bottom: Radius.circular(15),
+                                          ),
+                                          child: ColorFiltered(
+                                            colorFilter: ColorFilter.mode(
+                                              Colors.black.withOpacity(0.3),
+                                              BlendMode.multiply,
+                                            ),
+                                            child: FadeInImage.assetNetwork(
+                                              placeholder:
+                                                  'assets/images/food-plate.png',
+                                              image:
+                                                  'https://restaurant-api.dicoding.dev/images/medium/${state.restaurantDetail.pictureId}',
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    : Center(
+                                        child: CircularProgressIndicator(
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                              );
+                            },
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 25,
+                            child: BlocBuilder<DatabaseCubit, DatabaseState>(
+                                builder: (context, state) {
+                              return RestaurantAnimationContainer(
                                 animationController: _animationController,
-                                begin: Offset(-1, 0),
+                                begin: Offset(1, 0),
                                 end: Offset.zero,
-                                margin: const EdgeInsets.only(top: 10),
-                                width: double.infinity,
-                                child: Text(
-                                  state.restaurantDetail.description,
-                                  softWrap: true,
-                                  textAlign: TextAlign.justify,
-                                ),
-                              ),
-                              RestaurantAnimationContainer(
-                                animationController: _animationController,
-                                begin: Offset(-1, 0),
-                                end: Offset.zero,
-                                margin: const EdgeInsets.only(top: 20),
-                                width: double.infinity,
-                                height: 25,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
+                                child: Card(
+                                  elevation: 1,
+                                  shape: CircleBorder(),
                                   color: Colors.amber,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    'Makanan',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .button!
-                                        .apply(color: Colors.black),
-                                  ),
-                                ),
-                              ),
-                              RestaurantAnimationContainer(
-                                animationController: _animationController,
-                                begin: Offset(0, 1),
-                                end: Offset.zero,
-                                margin: const EdgeInsets.only(top: 10),
-                                width: double.infinity,
-                                height: 150,
-                                child: ListView.builder(
-                                    scrollDirection: Axis.horizontal,
-                                    itemCount: state
-                                        .restaurantDetail.menus.foods.length,
-                                    itemExtent: 200,
-                                    itemBuilder: (context, index) {
-                                      Category restaurantFood = state
-                                          .restaurantDetail.menus.foods[index];
-                                      return RestaurantMenuTile(
-                                          restaurantMenuData: restaurantFood);
-                                    }),
-                              ),
-                              RestaurantAnimationContainer(
-                                animationController: _animationController,
-                                begin: Offset(-1, 0),
-                                end: Offset.zero,
-                                margin: const EdgeInsets.only(top: 20),
-                                width: double.infinity,
-                                height: 25,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: Colors.amber,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    'Minuman',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .button!
-                                        .apply(color: Colors.black),
-                                  ),
-                                ),
-                              ),
-                              RestaurantAnimationContainer(
-                                animationController: _animationController,
-                                begin: Offset(0, 1),
-                                end: Offset.zero,
-                                margin: const EdgeInsets.only(top: 10),
-                                width: double.infinity,
-                                height: 150,
-                                child: ListView.builder(
-                                    scrollDirection: Axis.horizontal,
-                                    itemCount: state
-                                        .restaurantDetail.menus.drinks.length,
-                                    itemExtent: 200,
-                                    itemBuilder: (context, index) {
-                                      Category restaurantDrink = state
-                                          .restaurantDetail.menus.drinks[index];
-                                      return RestaurantMenuTile(
-                                          restaurantMenuData: restaurantDrink);
-                                    }),
-                              ),
-                              RestaurantAnimationContainer(
-                                animationController: _animationController,
-                                begin: Offset(-1, 0),
-                                end: Offset.zero,
-                                margin:
-                                    const EdgeInsets.only(top: 20, bottom: 20),
-                                width: double.infinity,
-                                child: OutlinedButton(
-                                  style: OutlinedButton.styleFrom(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    primary: Colors.amber,
-                                    side: BorderSide(color: Colors.amber),
-                                  ),
-                                  onPressed: () => showModalBottomSheet(
-                                    isScrollControlled: true,
-                                    backgroundColor: Colors.transparent,
-                                    context: context,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.vertical(
-                                        top: Radius.circular(15),
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(50),
+                                    onTap: () {
+                                      if (!isFavorite)
+                                        context
+                                            .read<DatabaseCubit>()
+                                            .insertToFavorite(
+                                                restaurantDetailData);
+                                      else
+                                        context
+                                            .read<DatabaseCubit>()
+                                            .removeDataFromFavorite(
+                                                restaurantDetailData);
+                                      context
+                                          .read<DatabaseCubit>()
+                                          .isRestaurantFavorite(restaurantId);
+                                    },
+                                    child: Container(
+                                      width: 65,
+                                      height: 65,
+                                      child: Center(
+                                        child: Icon(
+                                          isFavorite
+                                              ? Icons.favorite
+                                              : Icons.favorite_border_outlined,
+                                          color: Colors.black,
+                                          size: 40,
+                                        ),
                                       ),
                                     ),
-                                    enableDrag: true,
-                                    builder: (context) =>
-                                        RestaurantReviewBottomSheet(
-                                      customerReviewData: state
-                                          .restaurantDetail.customerReviews,
-                                    ),
-                                  ),
-                                  child: Text(
-                                    'Lihat Review '
-                                    '(${state.restaurantDetail.customerReviews.length})',
-                                    style: Theme.of(context).textTheme.button,
                                   ),
                                 ),
-                              ),
-                            ],
-                          );
-                        else if (state is RestaurantLoading)
-                          return RestaurantDetailShimmer();
-                        else
-                          return Center(
-                            child: Text('No data'),
-                          );
-                      },
+                              );
+                            }),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: BlocBuilder<RestaurantCubit, RestaurantState>(
+                        builder: (context, state) {
+                          if (state is RestaurantDetailLoadSuccess) {
+                            restaurantDetailData = state.restaurantDetail;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                RestaurantAnimationContainer(
+                                  animationController: _animationController,
+                                  begin: Offset(-1, 0),
+                                  end: Offset.zero,
+                                  margin: const EdgeInsets.only(top: 20),
+                                  child: Text(
+                                    restaurantDetailData.name,
+                                    style:
+                                        Theme.of(context).textTheme.headline5,
+                                  ),
+                                ),
+                                RestaurantAnimationContainer(
+                                  animationController: _animationController,
+                                  begin: Offset(-1, 0),
+                                  end: Offset.zero,
+                                  margin: const EdgeInsets.only(top: 8),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.location_on, size: 20),
+                                      SizedBox(width: 5),
+                                      Text(
+                                        state.restaurantDetail.city,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .subtitle1!
+                                            .apply(color: Colors.black),
+                                      ),
+                                      SizedBox(width: 5),
+                                      Text(
+                                        '|',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .subtitle1,
+                                      ),
+                                      SizedBox(width: 5),
+                                      Icon(Icons.star, size: 20),
+                                      SizedBox(width: 5),
+                                      Text(
+                                        '${state.restaurantDetail.rating}',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .subtitle1!
+                                            .apply(color: Colors.black),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                RestaurantAnimationContainer(
+                                  animationController: _animationController,
+                                  begin: Offset(-1, 0),
+                                  end: Offset.zero,
+                                  margin: const EdgeInsets.only(top: 20),
+                                  width: double.infinity,
+                                  height: 25,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    color: Colors.amber,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'Deskripsi',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .button!
+                                          .apply(color: Colors.black),
+                                    ),
+                                  ),
+                                ),
+                                RestaurantAnimationContainer(
+                                  animationController: _animationController,
+                                  begin: Offset(-1, 0),
+                                  end: Offset.zero,
+                                  margin: const EdgeInsets.only(top: 10),
+                                  width: double.infinity,
+                                  child: Text(
+                                    state.restaurantDetail.description,
+                                    softWrap: true,
+                                    textAlign: TextAlign.justify,
+                                  ),
+                                ),
+                                RestaurantAnimationContainer(
+                                  animationController: _animationController,
+                                  begin: Offset(-1, 0),
+                                  end: Offset.zero,
+                                  margin: const EdgeInsets.only(top: 20),
+                                  width: double.infinity,
+                                  height: 25,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    color: Colors.amber,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'Makanan',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .button!
+                                          .apply(color: Colors.black),
+                                    ),
+                                  ),
+                                ),
+                                RestaurantAnimationContainer(
+                                  animationController: _animationController,
+                                  begin: Offset(0, 1),
+                                  end: Offset.zero,
+                                  margin: const EdgeInsets.only(top: 10),
+                                  width: double.infinity,
+                                  height: 150,
+                                  child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: state
+                                          .restaurantDetail.menus.foods.length,
+                                      itemExtent: 200,
+                                      itemBuilder: (context, index) {
+                                        Category restaurantFood = state
+                                            .restaurantDetail
+                                            .menus
+                                            .foods[index];
+                                        return RestaurantMenuTile(
+                                            restaurantMenuData: restaurantFood);
+                                      }),
+                                ),
+                                RestaurantAnimationContainer(
+                                  animationController: _animationController,
+                                  begin: Offset(-1, 0),
+                                  end: Offset.zero,
+                                  margin: const EdgeInsets.only(top: 20),
+                                  width: double.infinity,
+                                  height: 25,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    color: Colors.amber,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'Minuman',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .button!
+                                          .apply(color: Colors.black),
+                                    ),
+                                  ),
+                                ),
+                                RestaurantAnimationContainer(
+                                  animationController: _animationController,
+                                  begin: Offset(0, 1),
+                                  end: Offset.zero,
+                                  margin: const EdgeInsets.only(top: 10),
+                                  width: double.infinity,
+                                  height: 150,
+                                  child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: state
+                                          .restaurantDetail.menus.drinks.length,
+                                      itemExtent: 200,
+                                      itemBuilder: (context, index) {
+                                        Category restaurantDrink = state
+                                            .restaurantDetail
+                                            .menus
+                                            .drinks[index];
+                                        return RestaurantMenuTile(
+                                            restaurantMenuData:
+                                                restaurantDrink);
+                                      }),
+                                ),
+                                RestaurantAnimationContainer(
+                                  animationController: _animationController,
+                                  begin: Offset(-1, 0),
+                                  end: Offset.zero,
+                                  margin: const EdgeInsets.only(
+                                      top: 20, bottom: 20),
+                                  width: double.infinity,
+                                  child: OutlinedButton(
+                                    style: OutlinedButton.styleFrom(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      primary: Colors.amber,
+                                      side: BorderSide(color: Colors.amber),
+                                    ),
+                                    onPressed: () => showModalBottomSheet(
+                                      isScrollControlled: true,
+                                      backgroundColor: Colors.transparent,
+                                      context: context,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.vertical(
+                                          top: Radius.circular(15),
+                                        ),
+                                      ),
+                                      enableDrag: true,
+                                      builder: (context) =>
+                                          RestaurantReviewBottomSheet(
+                                        customerReviewData: state
+                                            .restaurantDetail.customerReviews,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Lihat Review '
+                                      '(${state.restaurantDetail.customerReviews.length})',
+                                      style: Theme.of(context).textTheme.button,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          } else if (state is RestaurantLoading) {
+                            return RestaurantDetailShimmer();
+                          } else {
+                            return Center(
+                              child: Text('No data'),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) => RestaurantReviewDialog(
-                id: restaurantId,
-              ),
-            );
-          },
-          backgroundColor: Colors.amber,
-          child: Icon(
-            Icons.reviews,
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => RestaurantReviewDialog(
+                  id: restaurantId,
+                ),
+              );
+            },
+            backgroundColor: Colors.amber,
+            child: Icon(
+              Icons.reviews,
+            ),
+            tooltip: 'Tulis Review Baru',
           ),
-          tooltip: 'Tulis Review Baru',
         ),
       ),
     );

@@ -130,21 +130,33 @@ class _SearchPageState extends State<SearchPage> {
                         listener: (context, state) {},
                         builder: (context, state) {
                           if (state is RestaurantFounded)
-                            return ListView.builder(
-                              itemCount: state.restaurantsList.length,
-                              itemExtent: 100,
-                              itemBuilder: (context, index) {
-                                return RestaurantTile(
-                                    restaurant: state.restaurantsList[index]);
-                              },
-                            );
+                            return state.restaurantsList.length > 0
+                                ? ListView.builder(
+                                    itemCount: state.restaurantsList.length,
+                                    itemExtent: 100,
+                                    itemBuilder: (context, index) {
+                                      return RestaurantTile(
+                                          restaurant:
+                                              state.restaurantsList[index]);
+                                    },
+                                  )
+                                : Center(
+                                    child: Text(
+                                      'Restaurant not found',
+                                      style:
+                                          Theme.of(context).textTheme.headline6,
+                                    ),
+                                  );
                           else if (state is RestaurantLoading)
                             return Center(
                               child: RestaurantListShimmer(),
                             );
                           else
                             return Center(
-                              child: Text('Search your restaurant'),
+                              child: Text(
+                                'Search your restaurant',
+                                style: Theme.of(context).textTheme.headline6,
+                              ),
                             );
                         },
                       ),

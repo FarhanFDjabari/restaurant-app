@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:meta/meta.dart';
 import 'package:restaurant_app/service/background_service.dart';
 import 'package:restaurant_app/service/notification_service.dart';
@@ -13,20 +14,6 @@ class NotificationCubit extends Cubit<NotificationState> {
   NotificationService _notificationService = NotificationService();
   SchedulingService _schedulingService = SchedulingService();
   BackgroundService _backgroundService = BackgroundService();
-
-  bool getIsSchedule() {
-    return _schedulingService.isScheduled;
-  }
-
-  void getNotificationPermission() async {
-    emit(NotificationLoading());
-    try {
-      await _notificationService.getPermission();
-      emit(NotificationPermitted());
-    } catch (error) {
-      emit(NotificationError(error.toString()));
-    }
-  }
 
   void initNotification(FlutterLocalNotificationsPlugin flp) async {
     emit(NotificationLoading());
@@ -52,6 +39,7 @@ class NotificationCubit extends Cubit<NotificationState> {
     emit(NotificationLoading());
     try {
       final result = await _schedulingService.scheduledNotification(value);
+      await GetStorage().write('is_notification_scheduled', value);
       emit(NotificationSuccess(result));
     } catch (error) {
       emit(NotificationError(error.toString()));

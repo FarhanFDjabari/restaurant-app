@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:restaurant_app/cubit/notification/notification_cubit.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -13,6 +14,15 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  late bool notificationStatus;
+
+  @override
+  void initState() {
+    notificationStatus =
+        GetStorage().read('is_notification_scheduled') ?? false;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,18 +99,18 @@ class _SettingsPageState extends State<SettingsPage> {
                     width: double.infinity,
                     child: ListView(
                       children: [
-                        BlocProvider<NotificationCubit>(
-                          create: (context) => NotificationCubit(),
-                          child: ListTile(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            tileColor: Colors.grey.withOpacity(0.1),
-                            title: Text(
-                              'Notifikasi Terjadwal',
-                              style: Theme.of(context).textTheme.subtitle1,
-                            ),
-                            trailing: BlocConsumer<NotificationCubit,
+                        ListTile(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          tileColor: Colors.grey.withOpacity(0.1),
+                          title: Text(
+                            'Notifikasi Terjadwal',
+                            style: Theme.of(context).textTheme.subtitle1,
+                          ),
+                          trailing: BlocProvider<NotificationCubit>(
+                            create: (context) => NotificationCubit(),
+                            child: BlocConsumer<NotificationCubit,
                                 NotificationState>(
                               listener: (context, state) {
                                 if (state is NotificationError) {
@@ -110,10 +120,12 @@ class _SettingsPageState extends State<SettingsPage> {
                                     borderRadius: 15,
                                   ));
                                 } else if (state is NotificationSuccess) {
+                                  notificationStatus = GetStorage()
+                                      .read('is_notification_scheduled');
                                   Get.showSnackbar(GetBar(
                                     message: state.value
-                                        ? 'Activate Scheduled Notification'
-                                        : 'Deactivate Scheduled Notification',
+                                        ? 'Scheduled Notification Active'
+                                        : 'Scheduled Notification Cancelled',
                                     margin: EdgeInsets.all(10),
                                     duration: Duration(seconds: 4),
                                     borderRadius: 15,
@@ -122,9 +134,7 @@ class _SettingsPageState extends State<SettingsPage> {
                               },
                               builder: (context, state) {
                                 return Switch.adaptive(
-                                  value: context
-                                      .read<NotificationCubit>()
-                                      .getIsSchedule(),
+                                  value: notificationStatus,
                                   onChanged: (value) async {
                                     if (Platform.isIOS) {
                                     } else {

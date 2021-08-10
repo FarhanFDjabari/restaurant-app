@@ -12,7 +12,7 @@ class NotificationService {
 
   factory NotificationService() => _instance ?? NotificationService._internal();
 
-  Future<void> initNotification(FlutterLocalNotificationsPlugin flp) async {
+  Future<bool?> initNotification(FlutterLocalNotificationsPlugin flp) async {
     print('initiating notification channel');
 
     var initializationSettingsAndroid =
@@ -29,15 +29,13 @@ class NotificationService {
       iOS: initializationSettingsIOS,
     );
 
-    await flp.initialize(initializationSettings,
+    return await flp.initialize(initializationSettings,
         onSelectNotification: (String? payload) async {
       if (payload != null) {
         print('notification payload: ' + payload);
       }
     });
   }
-
-  Future<void> getPermission() async {}
 
   Future<void> showNotification(FlutterLocalNotificationsPlugin flp,
       RestaurantDetail restaurantDetail) async {

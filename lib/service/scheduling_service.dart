@@ -6,19 +6,18 @@ import 'background_service.dart';
 class SchedulingService {
   bool _isScheduled = false;
 
-  bool get isScheduled => _isScheduled;
-
   Future<bool> scheduledNotification(bool value) async {
     _isScheduled = value;
     if (_isScheduled) {
-      print('Notification scheduled on ${DateTimeService.format().toString()}');
+      print('scheduled notification on ${DateTimeService.format()}');
       await AndroidAlarmManager.periodic(
-        Duration(hours: 24),
+        Duration(hours: 23),
         1,
         BackgroundService.callback,
         startAt: DateTimeService.format(),
         exact: true,
         wakeup: true,
+        rescheduleOnReboot: true,
       );
       return true;
     } else {
@@ -29,7 +28,6 @@ class SchedulingService {
   }
 
   Future<bool> notificationTest() async {
-    print('Show notification test');
     return await AndroidAlarmManager.oneShot(
       Duration(seconds: 2),
       2,
