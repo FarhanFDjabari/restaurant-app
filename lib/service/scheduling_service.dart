@@ -11,7 +11,7 @@ class SchedulingService {
     if (_isScheduled) {
       print('scheduled notification on ${DateTimeService.format()}');
       await AndroidAlarmManager.periodic(
-        Duration(hours: 23),
+        Duration(hours: 24),
         1,
         BackgroundService.callback,
         startAt: DateTimeService.format(),

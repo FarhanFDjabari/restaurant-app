@@ -3,6 +3,7 @@ import 'package:restaurant_app/model/restaurant/restaurant_detail.dart';
 
 class ReviewTile extends StatelessWidget {
   final CustomerReview customerReview;
+
   ReviewTile({required this.customerReview});
 
   @override

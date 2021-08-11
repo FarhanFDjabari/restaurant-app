@@ -77,7 +77,6 @@ class RestaurantDetail {
         "name": name,
         "description": description,
         "city": city,
-        "address": address,
         "pictureId": pictureId,
         "rating": rating,
       };

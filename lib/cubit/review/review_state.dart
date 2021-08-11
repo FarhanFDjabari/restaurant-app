@@ -11,5 +11,6 @@ class ReviewUploadSuccess extends ReviewState {}
 
 class ReviewUploadError extends ReviewState {
   final String errorMessage;
+
   ReviewUploadError(this.errorMessage);
 }

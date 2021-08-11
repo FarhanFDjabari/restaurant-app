@@ -15,6 +15,7 @@ class BackgroundServiceLoading extends NotificationState {}
 
 class NotificationSuccess extends NotificationState {
   final bool value;
+
   NotificationSuccess(this.value);
 }
 
@@ -24,10 +25,12 @@ class NotificationListenSuccess extends NotificationState {}
 
 class NotificationError extends NotificationState {
   final String errorMessage;
+
   NotificationError(this.errorMessage);
 }
 
 class BackgroundServiceError extends NotificationState {
   final String errorMessage;
+
   BackgroundServiceError(this.errorMessage);
 }

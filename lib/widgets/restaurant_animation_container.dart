@@ -7,6 +7,7 @@ class RestaurantAnimationContainer extends StatelessWidget {
   final Offset? begin, end;
   final EdgeInsetsGeometry? margin, padding;
   final BoxDecoration? decoration;
+
   RestaurantAnimationContainer(
       {Key? key,
       required this.animationController,

@@ -2,6 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:restaurant_app/model/restaurant/restaurant_detail.dart';
+import 'package:restaurant_app/model/restaurant/restaurants_result.dart';
+import 'package:restaurant_app/util/navigation.dart';
+import 'package:rxdart/rxdart.dart';
+
+final selectNotificationSubject = BehaviorSubject<String>();
 
 class NotificationService {
   static NotificationService? _instance;
@@ -34,7 +39,20 @@ class NotificationService {
       if (payload != null) {
         print('notification payload: ' + payload);
       }
+      selectNotificationSubject.add(payload!);
     });
+  }
+
+  void requestIOSPermissions(
+      FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) {
+    flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin>()
+        ?.requestPermissions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
   }
 
   Future<void> showNotification(FlutterLocalNotificationsPlugin flp,
@@ -71,5 +89,12 @@ class NotificationService {
     );
   }
 
-  void notificationListener(String route) {}
+  void configureSelectNotificationSubject(String route) {
+    selectNotificationSubject.stream.listen(
+      (String payload) async {
+        var data = Restaurant.fromJson(json.decode(payload));
+        Navigation.intent(route, {'id': data.id});
+      },
+    );
+  }
 }

@@ -9,11 +9,13 @@ class DatabaseLoading extends DatabaseState {}
 
 class DatabaseDataLoadSuccess extends DatabaseState {
   final List<Restaurant> restaurantList;
+
   DatabaseDataLoadSuccess(this.restaurantList);
 }
 
 class DatabaseDataStatus extends DatabaseState {
   final bool status;
+
   DatabaseDataStatus(this.status);
 }
 
@@ -25,5 +27,6 @@ class DatabaseDataDeleteSuccess extends DatabaseState {}
 
 class DatabaseDataError extends DatabaseState {
   final String errorMessage;
+
   DatabaseDataError(this.errorMessage);
 }

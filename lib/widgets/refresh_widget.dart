@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class RefreshWidget extends StatefulWidget {
   final Widget child;
   final Future Function() onRefresh;
+
   RefreshWidget({Key? key, required this.child, required this.onRefresh})
       : super(key: key);
 

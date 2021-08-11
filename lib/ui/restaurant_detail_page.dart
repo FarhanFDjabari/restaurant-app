@@ -165,6 +165,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                             child: BlocBuilder<DatabaseCubit, DatabaseState>(
                                 builder: (context, state) {
                               return RestaurantAnimationContainer(
+                                key: Key('favorite_button'),
                                 animationController: _animationController,
                                 begin: Offset(1, 0),
                                 end: Offset.zero,
@@ -240,7 +241,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                                       Icon(Icons.location_on, size: 20),
                                       SizedBox(width: 5),
                                       Text(
-                                        state.restaurantDetail.city,
+                                        restaurantDetailData.city,
                                         style: Theme.of(context)
                                             .textTheme
                                             .subtitle1!
@@ -257,7 +258,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                                       Icon(Icons.star, size: 20),
                                       SizedBox(width: 5),
                                       Text(
-                                        '${state.restaurantDetail.rating}',
+                                        '${restaurantDetailData.rating}',
                                         style: Theme.of(context)
                                             .textTheme
                                             .subtitle1!
@@ -294,7 +295,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                                   margin: const EdgeInsets.only(top: 10),
                                   width: double.infinity,
                                   child: Text(
-                                    state.restaurantDetail.description,
+                                    restaurantDetailData.description,
                                     softWrap: true,
                                     textAlign: TextAlign.justify,
                                   ),
@@ -329,14 +330,13 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                                   height: 150,
                                   child: ListView.builder(
                                       scrollDirection: Axis.horizontal,
-                                      itemCount: state
-                                          .restaurantDetail.menus.foods.length,
+                                      itemCount: restaurantDetailData
+                                          .menus.foods.length,
                                       itemExtent: 200,
                                       itemBuilder: (context, index) {
-                                        Category restaurantFood = state
-                                            .restaurantDetail
-                                            .menus
-                                            .foods[index];
+                                        Category restaurantFood =
+                                            restaurantDetailData
+                                                .menus.foods[index];
                                         return RestaurantMenuTile(
                                             restaurantMenuData: restaurantFood);
                                       }),
@@ -371,14 +371,13 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                                   height: 150,
                                   child: ListView.builder(
                                       scrollDirection: Axis.horizontal,
-                                      itemCount: state
-                                          .restaurantDetail.menus.drinks.length,
+                                      itemCount: restaurantDetailData
+                                          .menus.drinks.length,
                                       itemExtent: 200,
                                       itemBuilder: (context, index) {
-                                        Category restaurantDrink = state
-                                            .restaurantDetail
-                                            .menus
-                                            .drinks[index];
+                                        Category restaurantDrink =
+                                            restaurantDetailData
+                                                .menus.drinks[index];
                                         return RestaurantMenuTile(
                                             restaurantMenuData:
                                                 restaurantDrink);
@@ -411,13 +410,13 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                                       enableDrag: true,
                                       builder: (context) =>
                                           RestaurantReviewBottomSheet(
-                                        customerReviewData: state
-                                            .restaurantDetail.customerReviews,
+                                        customerReviewData: restaurantDetailData
+                                            .customerReviews,
                                       ),
                                     ),
                                     child: Text(
                                       'Lihat Review '
-                                      '(${state.restaurantDetail.customerReviews.length})',
+                                      '(${restaurantDetailData.customerReviews.length})',
                                       style: Theme.of(context).textTheme.button,
                                     ),
                                   ),
@@ -536,6 +535,7 @@ class RestaurantReviewDialog extends StatelessWidget {
             Navigation.back();
             Get.showSnackbar(
               GetBar(
+                key: Key('send_review_snackbar'),
                 message: 'Review berhasil dikirim',
                 margin: EdgeInsets.all(10),
                 duration: Duration(seconds: 1),
@@ -567,6 +567,7 @@ class RestaurantReviewDialog extends StatelessWidget {
                     ),
                     SizedBox(height: 15),
                     TextFormField(
+                      key: Key('review_name_input'),
                       focusNode: myFocusNode,
                       cursorColor: Colors.amber,
                       controller: _reviewNameController,
@@ -595,6 +596,7 @@ class RestaurantReviewDialog extends StatelessWidget {
                     ),
                     SizedBox(height: 10),
                     TextFormField(
+                      key: Key('review_message_input'),
                       controller: _reviewMessageController,
                       cursorColor: Colors.amber,
                       keyboardType: TextInputType.multiline,
@@ -628,6 +630,7 @@ class RestaurantReviewDialog extends StatelessWidget {
                       LoadingButton()
                     else
                       ElevatedButton(
+                        key: Key('send_review_button'),
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
                             final reviewRequest = ReviewRequest(

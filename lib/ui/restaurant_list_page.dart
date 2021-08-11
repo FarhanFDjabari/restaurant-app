@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:restaurant_app/cubit/restaurant/restaurant_cubit.dart';
+import 'package:restaurant_app/service/notification_service.dart';
 import 'package:restaurant_app/util/navigation.dart';
 import 'package:restaurant_app/widgets/refresh_widget.dart';
 import 'package:restaurant_app/widgets/restaurant_animation_container.dart';
@@ -16,10 +17,13 @@ class RestaurantListPage extends StatefulWidget {
 class _RestaurantListPageState extends State<RestaurantListPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+  final _notificationService = NotificationService();
 
   @override
   void initState() {
     super.initState();
+    _notificationService
+        .configureSelectNotificationSubject('/restaurant-detail');
     _animationController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 750),
@@ -29,6 +33,7 @@ class _RestaurantListPageState extends State<RestaurantListPage>
 
   @override
   void dispose() {
+    selectNotificationSubject.close();
     _animationController.dispose();
     super.dispose();
   }
@@ -122,6 +127,7 @@ class _RestaurantListPageState extends State<RestaurantListPage>
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           IconButton(
+                            key: Key('favorite_page_button'),
                             icon: Icon(Icons.favorite_border_outlined),
                             onPressed: () {
                               Navigation.intent('/favorite-restaurant', null);
@@ -129,6 +135,7 @@ class _RestaurantListPageState extends State<RestaurantListPage>
                             tooltip: 'Your favorite',
                           ),
                           IconButton(
+                            key: Key('search_page_button'),
                             icon: Icon(Icons.search),
                             onPressed: () {
                               Navigation.intent('/search', null);
@@ -136,6 +143,7 @@ class _RestaurantListPageState extends State<RestaurantListPage>
                             tooltip: 'Search',
                           ),
                           IconButton(
+                            key: Key('settings_page_button'),
                             onPressed: () {
                               Navigation.intent('/settings', null);
                             },
@@ -149,6 +157,7 @@ class _RestaurantListPageState extends State<RestaurantListPage>
                       margin: const EdgeInsets.only(bottom: 5.0),
                       child: Text(
                         'Restaurant',
+                        key: Key('app_title'),
                         style: Theme.of(context)
                             .textTheme
                             .headline4!
@@ -159,6 +168,7 @@ class _RestaurantListPageState extends State<RestaurantListPage>
                       margin: const EdgeInsets.only(bottom: 10.0),
                       child: Text(
                         'Recommendation restaurant for you!',
+                        key: Key('app_subtitle'),
                         style: Theme.of(context)
                             .textTheme
                             .subtitle2!
@@ -181,6 +191,7 @@ class _RestaurantListPageState extends State<RestaurantListPage>
                                   },
                                   child: state.restaurantsList.length > 0
                                       ? ListView.builder(
+                                          key: Key('restaurant_list'),
                                           itemCount:
                                               state.restaurantsList.length,
                                           itemExtent: 100.0,

@@ -18,7 +18,7 @@ class DatabaseService {
       '$path/restaurantapp.db',
       onCreate: (db, version) async {
         await db.execute(
-            "CREATE TABLE favorites (id TEXT PRIMARY KEY, name TEXT, description TEXT, city TEXT, address TEXT, pictureId TEXT, rating REAL)");
+            "CREATE TABLE favorites (id TEXT PRIMARY KEY, name TEXT, description TEXT, city TEXT, pictureId TEXT, rating REAL)");
       },
       version: 1,
     );

@@ -108,6 +108,13 @@ class _SettingsPageState extends State<SettingsPage> {
                             'Notifikasi Terjadwal',
                             style: Theme.of(context).textTheme.subtitle1,
                           ),
+                          subtitle: Text(
+                            'Dikirimkan setiap pukul 11 pagi',
+                            style: Theme.of(context)
+                                .textTheme
+                                .caption!
+                                .apply(color: Colors.grey),
+                          ),
                           trailing: BlocProvider<NotificationCubit>(
                             create: (context) => NotificationCubit(),
                             child: BlocConsumer<NotificationCubit,

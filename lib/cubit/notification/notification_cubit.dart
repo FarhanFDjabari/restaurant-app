@@ -59,7 +59,7 @@ class NotificationCubit extends Cubit<NotificationState> {
   void activateNotificationListener(String route) {
     emit(NotificationLoading());
     try {
-      _notificationService.notificationListener(route);
+      _notificationService.configureSelectNotificationSubject(route);
       emit(NotificationListenSuccess());
     } catch (error) {
       emit(NotificationError(error.toString()));

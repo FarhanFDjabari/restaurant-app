@@ -33,6 +33,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void dispose() {
     _animationController.dispose();
+
     super.dispose();
   }
 
@@ -54,6 +55,7 @@ class _SplashScreenState extends State<SplashScreen>
                       Lottie.asset(
                         'assets/json/splash_animation.json',
                         width: 250,
+                        key: Key('app_splash_animation'),
                         frameRate: FrameRate.max,
                       ),
                       SizedBox(height: 15),
@@ -63,6 +65,7 @@ class _SplashScreenState extends State<SplashScreen>
                           end: Offset.zero,
                         ).animate(_animationController),
                         child: CircularProgressIndicator(
+                          key: Key('app_splash_loading'),
                           color: Colors.amber,
                           backgroundColor: Colors.grey.withOpacity(0.3),
                         ),
