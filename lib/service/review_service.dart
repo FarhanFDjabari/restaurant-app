@@ -6,9 +6,11 @@ class ReviewService {
   Dio _dio = Dio();
   static const BASE_URL = 'https://restaurant-api.dicoding.dev';
 
-  Future<ReviewResponse> addNewReview(ReviewRequest reviewRequest) async {
+  Future<ReviewResponse> addNewReview(
+      Dio? mockDio, ReviewRequest reviewRequest) async {
+    final dioRequest = mockDio ?? _dio;
     try {
-      Response _response = await _dio.post(
+      Response _response = await dioRequest.post(
         BASE_URL + '/review',
         data: reviewRequest.toJson(),
         options: Options(
@@ -18,7 +20,11 @@ class ReviewService {
           },
         ),
       );
-      return ReviewResponse.fromJson(_response.data);
+      ReviewResponse _reviewResponse = ReviewResponse.fromJson(_response.data);
+      if (!_reviewResponse.error)
+        return _reviewResponse;
+      else
+        throw Exception('Internet connection problem');
     } on DioError catch (error) {
       return ReviewResponse.fromJson(error.response!.data);
     }

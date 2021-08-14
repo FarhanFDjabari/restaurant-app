@@ -31,11 +31,11 @@ class BackgroundService {
     final RestaurantService _restaurantService = RestaurantService();
 
     final List<dynamic> _restaurantList =
-        (await _restaurantService.getRestaurantList()).restaurants;
+        (await _restaurantService.getRestaurantList(null)).restaurants;
     String? randomRestaurantId = _restaurantList[Random().nextInt(20)].id;
 
-    final _restaurantData = await _restaurantService
-        .getRestaurantById(randomRestaurantId ?? "s1knt6za9kkfw1e867");
+    final _restaurantData = await _restaurantService.getRestaurantById(
+        null, randomRestaurantId ?? "s1knt6za9kkfw1e867");
 
     await _notificationService.showNotification(
       flp,
