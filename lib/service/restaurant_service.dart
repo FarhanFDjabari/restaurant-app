@@ -9,7 +9,7 @@ class RestaurantService {
       receiveDataWhenStatusError: true,
     ),
   );
-  static const BASE_URL = 'https://restaurant-api.dicoding.dev/';
+  static const BASE_URL = 'https://restaurant-api.dicoding.dev';
 
   Future<RestaurantsResult> getRestaurantList() async {
     try {

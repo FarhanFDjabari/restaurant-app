@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:restaurant_app/cubit/database/database_cubit.dart';
+import 'package:restaurant_app/ui/restaurant_detail_page.dart';
 import 'package:restaurant_app/util/navigation.dart';
 import 'package:restaurant_app/widgets/refresh_widget.dart';
 import 'package:restaurant_app/widgets/restaurant_list_shimmer.dart';
@@ -150,8 +151,26 @@ class _FavoriteRestaurantPageState extends State<FavoriteRestaurantPage> {
                                       itemBuilder: (context, index) {
                                         final restaurant =
                                             state.restaurantList[index];
-                                        return RestaurantTile(
-                                          restaurant: restaurant,
+                                        return InkWell(
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (routeContext) =>
+                                                    RestaurantDetailPage(
+                                                  id: state
+                                                      .restaurantList[index].id,
+                                                ),
+                                              ),
+                                            ).then((value) => {
+                                                  context
+                                                      .read<DatabaseCubit>()
+                                                      .getDatabaseData()
+                                                });
+                                          },
+                                          child: RestaurantTile(
+                                            restaurant: restaurant,
+                                          ),
                                         );
                                       },
                                     ),

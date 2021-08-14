@@ -4,7 +4,7 @@ import 'package:restaurant_app/model/review/review_response.dart';
 
 class ReviewService {
   Dio _dio = Dio();
-  static const BASE_URL = 'https://restaurant-api.dicoding.dev/';
+  static const BASE_URL = 'https://restaurant-api.dicoding.dev';
 
   Future<ReviewResponse> addNewReview(ReviewRequest reviewRequest) async {
     try {

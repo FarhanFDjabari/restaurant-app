@@ -25,7 +25,7 @@ class _SplashScreenState extends State<SplashScreen>
     _animationController.forward().then(
           (value) => Timer(
             Duration(seconds: 4),
-            () => Navigation.replacementAllIntent('/', null),
+            () => Navigation.replacementIntent('/', null),
           ),
         );
   }
@@ -33,7 +33,6 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void dispose() {
     _animationController.dispose();
-
     super.dispose();
   }
 

@@ -198,8 +198,16 @@ class _RestaurantListPageState extends State<RestaurantListPage>
                                           itemBuilder: (context, index) {
                                             final restaurant =
                                                 state.restaurantsList[index];
-                                            return RestaurantTile(
-                                              restaurant: restaurant,
+                                            return InkWell(
+                                              onTap: () {
+                                                Navigation.intent(
+                                                  '/restaurant-detail',
+                                                  {'id': restaurant.id},
+                                                );
+                                              },
+                                              child: RestaurantTile(
+                                                restaurant: restaurant,
+                                              ),
                                             );
                                           },
                                         )

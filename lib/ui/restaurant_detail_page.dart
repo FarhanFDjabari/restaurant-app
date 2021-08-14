@@ -16,6 +16,10 @@ import 'package:restaurant_app/widgets/restaurant_menu_tile.dart';
 import 'package:restaurant_app/widgets/review_tile.dart';
 
 class RestaurantDetailPage extends StatefulWidget {
+  final String? id;
+
+  const RestaurantDetailPage({Key? key, this.id}) : super(key: key);
+
   @override
   _RestaurantDetailPageState createState() => _RestaurantDetailPageState();
 }
@@ -31,7 +35,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
   @override
   void initState() {
     super.initState();
-    restaurantId = Get.arguments['id'];
+    restaurantId = widget.id ?? Get.arguments['id'];
     _restaurantCubit.getRestaurantById(restaurantId);
     _animationController = AnimationController(
       vsync: this,

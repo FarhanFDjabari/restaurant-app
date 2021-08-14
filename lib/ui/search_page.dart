@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:restaurant_app/cubit/restaurant/restaurant_cubit.dart';
+import 'package:restaurant_app/util/navigation.dart';
 import 'package:restaurant_app/widgets/restaurant_list_shimmer.dart';
 import 'package:restaurant_app/widgets/restaurant_tile.dart';
 
@@ -135,9 +136,21 @@ class _SearchPageState extends State<SearchPage> {
                                     itemCount: state.restaurantsList.length,
                                     itemExtent: 100,
                                     itemBuilder: (context, index) {
-                                      return RestaurantTile(
+                                      return InkWell(
+                                        onTap: () {
+                                          Navigation.intent(
+                                            '/restaurant-detail',
+                                            {
+                                              'id': state
+                                                  .restaurantsList[index].id
+                                            },
+                                          );
+                                        },
+                                        child: RestaurantTile(
                                           restaurant:
-                                              state.restaurantsList[index]);
+                                              state.restaurantsList[index],
+                                        ),
+                                      );
                                     },
                                   )
                                 : Center(
