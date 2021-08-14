@@ -1,20 +1,18 @@
-import 'package:dio/dio.dart';
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
+import 'package:http/http.dart' as http;
 import 'package:mockito/mockito.dart';
 import 'package:restaurant_app/model/restaurant/restaurant_detail.dart';
 import 'package:restaurant_app/service/restaurant_service.dart';
 
-import 'dio_test.mocks.dart';
+import 'http_test.mocks.dart';
 
-@GenerateMocks([], customMocks: [
-  MockSpec<Dio>(returnNullOnMissingStub: true),
-])
 void main() {
   group('Restaurant Service Test', () {
     test('given id s1knt6za9kkfw1e867, should return data when module complete',
         () async {
-      final dio = MockDio();
+          final client = MockClient();
       String id = 's1knt6za9kkfw1e867';
 
       final Map<String, dynamic> responsePayload = {
@@ -99,17 +97,16 @@ void main() {
         }
       };
 
-      final httpResponse = Response(
-        data: responsePayload,
-        statusCode: 200,
-        requestOptions: RequestOptions(path: ''),
+      when(client
+              .get(Uri.parse('https://restaurant-api.dicoding.dev/detail/$id')))
+          .thenAnswer(
+        (_) async => http.Response(jsonEncode(responsePayload), 200),
       );
 
-      when(dio.get('https://restaurant-api.dicoding.dev/detail/$id'))
-          .thenAnswer((_) async => httpResponse);
-
-      expect(await RestaurantService().getRestaurantById(dio, id),
-          isA<RestaurantDetailResult>());
+      expect(
+        await RestaurantService().getRestaurantById(client, id),
+        isA<RestaurantDetailResult>(),
+      );
     });
   });
 }
